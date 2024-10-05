@@ -88,12 +88,19 @@
           </div>
         </header>
         <div class="flex">
-          <button class="tab-button active">Ajouter un Monstre</button>
-          <button class="tab-button">Filtres</button>
+          <button class="tab-button"
+          :class="{ 'active': !isFiltersTabActive }" 
+          @click="toggleTab('add')">
+          Ajouter un Monstre</button>
+
+          <button class="tab-button"
+          :class="{ 'active': isFiltersTabActive }"
+          @click="toggleTab('filters')">
+          Filtres</button>
         </div>
 
         <!-- Contenu des onglets -->
-        <div id="form" class="tab-content active">
+        <div id="form" class="tab-content active" v-if="!isFiltersTabActive">
           <h2 class="text-3xl monster-header mb-6">Ajouter un Monstre</h2>
           <form class="grid grid-cols-1 gap-4">
             <div>
@@ -150,7 +157,7 @@
 
             <button
               class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-              @click.prevent="addOne"
+              @click.prevent="addOne()"
               v-if="!isEditing"
             >
               Ajouter Monstre
@@ -160,12 +167,13 @@
               @click.prevent="updateOneById(inputmonsters.id)"
               v-if="isEditing"
               >
-              Mettre à jour le Monstre
+              Mise à jour du Monstre
+            </button>
           </form>
         </div>
 
         <!-- Contenu des filtres -->
-        <div id="filters" class="tab-content">
+        <div id="filters" class="tab-content" v-if="isFiltersTabActive">
           <h2 class="text-3xl monster-header mb-6">Filtres</h2>
           <form class="grid grid-cols-1 gap-4">
             <div>
@@ -218,7 +226,7 @@
 
             <div>
               <label class="block mb-2">Type de Monstre</label>
-              <select class="w-full p-2 bg-gray-800 text-white rounded">
+              <select class="w-full p-2 bg-gray-800 text-white rounded" >
                 <option value="">Tous les types</option>
                 <option value="aquatique">Aquatique</option>
                 <option value="terrestre">Terrestre</option>
@@ -237,18 +245,17 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           <!-- Carte de monstre -->
           <div
-            class="monster-card bg-gray-700 rounded-lg shadow-lg p-6 animate__animated"
-            :class="{ animate__backOutRight : monster.isDeleted}"
-            :data-monster-type="monster.type"
-            :key="monster.id"
-            v-for="monster in sortedmonsters"
+            v-for="monster in sortedmonsters" 
+            :key="monster.id" 
+            class="monster-card bg-gray-700 rounded-lg shadow-lg p-6"
+            :data-monster-type = "monster.type"
           >
             <img
               src="images/aqualizzard.png"
               class="w-full h-40 object-cover rounded mb-4"
             />
             <h3 class="text-xl font-bold">{{ monster.name }} (ID: {{ monster.id }})</h3>
-            <p class="text-gray-300 text-sm mb-4">{{ monster.description}}</p>
+            <p class="text-gray-300 text-sm mb-4">{{ monster.description }}</p>
             <div class="flex justify-between items-center mb-2">
               <span>PV: {{ monster.pv }}</span>
               <span>Attaque: {{ monster.attaque }}</span>
@@ -257,13 +264,13 @@
               <button
                 class="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-full"
                 @click.prevent="editOneById(monster.id)"
-              >
+                >
                 Modifier
               </button>
               <button
                 class="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded-full"
                 @click.prevent="deleteOneById(monster.id)"
-              >
+                >
                 Supprimer
               </button>
             </div>
@@ -281,20 +288,22 @@
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-
     <script>
-     // localStorage.setItem(
-     //   "monsters",
-     //   JSON.stringify([
-     //     {
-     //       id: Date.now(),
-     //       name:"Aqualizzard",
-     //       type:"aquatique",
-     //       pv:"50",
-     //       attaque:"50",
-     //     },
-     //   ])
-     //  );
+
+
+       // localStorage.setItem(
+      //   "monsters",
+      //   JSON.stringify([
+      //     {
+      //       id: Date.now(),
+      //       name: "Aqualizzard",
+      //       type: "aquatique",
+      //       pv: "50",
+      //       attaque:"50",
+      //     },
+      //   ])
+      // );
+
 
       Vue.createApp({
 
@@ -302,14 +311,29 @@
           return {
             monsters: JSON.parse(localStorage.getItem("monsters")) || [],
             inputmonsters: {id: null, name: "", type: "", pv: "", attaque: "" },
-          }
+            isEditing: false,
+            isFiltersTabActive: false,
+          };
         },
+
+        computed : {
+          sortedmonsters() {
+            return this.monsters.sort((a, b) => {
+              return a.name.localeCompare(b.name);
+            });
+          },
+        },
+
 
         methods: {
           addOne() {
             this.inputmonsters.id = Date.now();
             this.monsters.push({ ...this.inputmonsters });
             this.inputmonsters = { id: null, name: "", type: "", pv: "", attaque: "" };
+          },
+          
+          toggleTab(tab) {
+          this.isFiltersTabActive = (tab === 'filters');
           },
 
 
@@ -321,10 +345,8 @@
                 this.monsters.findIndex((item) => item.id == id),
                 1
               );
-            }, 50);
+            }, 30);
           },
-
-
           editOneById(id) {
             this.isEditing = true;
             this.inputmonsters = {
@@ -340,18 +362,8 @@
             this.inputmonsters = { id: null, name: "", type: "", pv: "", attaque: "" };
             this.isEditing = false;
           },
-
-
         },
-
-        computed : {
-          sortedmonsters () {
-            return this.monsters.sort((a, b) => {
-              return a.name.localeCompare(b.name);
-            });
-          },
-        },
-
+        
 
         watch: {
           monsters: {
@@ -362,6 +374,8 @@
           },
           
         },
+
+
       }).mount("#app");
     </script>
   </body>
