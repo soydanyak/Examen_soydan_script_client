@@ -241,7 +241,7 @@
             :class="{ animate__backOutRight : monster.isDeleted}"
             :data-monster-type="monster.type"
             :key="monster.id"
-            v-for="monster in monsters"
+            v-for="monster in sortedmonsters"
           >
             <img
               src="images/aqualizzard.png"
@@ -344,13 +344,13 @@
 
         },
 
-      
-
-
-
-
-
-
+        computed : {
+          sortedmonsters () {
+            return this.monsters.sort((a, b) => {
+              return a.name.localeCompare(b.name);
+            });
+          },
+        },
 
 
         watch: {
