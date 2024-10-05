@@ -279,11 +279,28 @@
         ])
       );
 
+      Vue.createApp({
 
 
 
 
 
+
+
+
+
+
+
+        watch: {
+          monsters: {
+            handler(newValue, oldValue) {
+              localStorage.setItem("monsters", JSON.stringify(newValue));
+            },
+            deep: true,
+          },
+          
+        },
+      }).mount("#app");
     </script>
   </body>
 </html>
