@@ -230,7 +230,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           <!-- Carte de monstre -->
           <div
-            class="monster-card bg-gray-700 rounded-lg shadow-lg p-6"
+            class="monster-card bg-gray-700 rounded-lg shadow-lg p-6 animate__animated"
+            :class="{ animate__backOutRight : monster.isDeleted}"
             :data-monster-type="monster.type"
             :key="monster.id"
             v-for="monster in monsters"
@@ -253,6 +254,7 @@
               </button>
               <button
                 class="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded-full"
+                @click.prevent="deleteOneById(monster.id)"
               >
                 Supprimer
               </button>
@@ -300,6 +302,18 @@
             this.inputmonsters.id = Date.now();
             this.monsters.push({ ...this.inputmonsters });
             this.inputmonsters = { id: null, name: "", type: "", pv: "", attaque: "" };
+          },
+
+
+          deleteOneById(id) {
+            const monster = this.monsters.find((item) => item.id == id);
+            monster.isDeleted = true;
+            setTimeout(() => {
+              this.monsters.splice(
+                this.monsters.findIndex((item) => item.id == id),
+                1
+              );
+            }, 50);
           },
 
 
